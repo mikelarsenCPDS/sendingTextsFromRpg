@@ -1,0 +1,148 @@
+**FREE
+ctl-opt option (*srcstmt : *nodebugio : *nounref);
+ctl-opt debug (*input);
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//  Program : Rpg_text
+//  Author  : Mike Larsen
+//  Date Written: 11/02/2018
+//  Purpose : This program will send text messages in various ways:
+//
+//            1. Plain text message
+//            2. Text message with a pdf attachment
+//            3. Text message with a jpg attachment
+//            4. Text message with a link to a website
+//
+//====================================================================*
+//   Date    Programmer  Description                                  *
+//--------------------------------------------------------------------*
+// 11/02/18  M.Larsen    Original code.                               *
+//                                                                    *
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
+
+// - - - -
+// Workfields
+
+dcl-s subject     char(150);
+dcl-s body        char(50);
+dcl-s CmdStr      char(3000);
+dcl-s Quote       char(1) inz('''');
+dcl-s recipient   char(150);
+dcl-s path        char(150) inz('/mikel');
+dcl-s fileNamePdf char(50);
+dcl-s fileNameJpg char(50);
+dcl-s fileType    char(5);
+
+// - - - -
+// run CL Command
+
+dcl-pr Run     ExtPgm('QCMDEXC');
+       CmdStr  Char(3000)   Options(*VarSize);
+       CmdLen  Packed(15:5) Const;
+       CmdDbcs Char(2)      Const Options(*Nopass);
+End-pr;
+
+ //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ Exsr SendTextMessage;
+ Exsr SendTextMessageJpg;
+ Exsr SendTextMessagePdf;
+ Exsr SendTextMessageWithLink;
+
+ *Inlr = *On;
+ Return;
+
+ //--------------------------------------------------------
+ // SendTextMessage subroutine
+ //--------------------------------------------------------
+
+ Begsr SendTextMessage;
+
+   subject   = 'This is a plain text message';
+   body      = 'This is a plain text message';
+   recipient = '5555555555@vtext.com';
+
+   CmdStr = 'SNDSMTPEMM RCP(' +
+             Quote + %trim(recipient) +
+             Quote + ') ' +
+            'SUBJECT(' + Quote + %trim(subject) + Quote + ') ' +
+            'NOTE(' + Quote + %trim(body) + Quote + ')' +
+            ' CONTENT(*HTML)';
+
+    Callp Run(Cmdstr:%Size(CmdStr));
+
+ Endsr;
+
+ //--------------------------------------------------------
+ // SendTextMessageJpg subroutine
+ //--------------------------------------------------------
+
+ Begsr SendTextMessageJpg;
+
+   subject     = 'This text message has a jpg attachment';
+   body        = 'This text message has a jpg attachment';
+   fileNameJpg = 'Nicole photo 1';
+   recipient   = '5555555555@vzwpix.com';
+   filetype    = '.jpg';
+
+   CmdStr = 'SNDSMTPEMM RCP(' +
+             Quote + %trim(recipient) +
+             Quote + ') ' +
+            'SUBJECT(' + Quote + %trim(subject) + Quote + ') ' +
+            'NOTE(' + Quote + %trim(body) + Quote + ')' +
+            ' ATTACH((' + Quote + %trim(path) + '/' +
+             %trim(fileNameJpg) + %trim(fileType) + Quote +
+            ' *JPEG))' +
+            ' CONTENT(*HTML)';
+
+    Callp Run(Cmdstr:%Size(CmdStr));
+
+ Endsr;
+
+ //--------------------------------------------------------
+ // SendTextMessagePdf subroutine
+ //--------------------------------------------------------
+
+ Begsr SendTextMessagePdf;
+
+   subject     = 'This text message has a pdf attachment';
+   body        = 'This text message has a pdf attachment';
+   fileNamePdf = '22H_-_Embedded_SQL_-_Beyond_The_Basics';
+   recipient   = '5555555555@vzwpix.com';
+   filetype    = '.pdf';
+
+   CmdStr = 'SNDSMTPEMM RCP(' +
+             Quote + %trim(recipient) +
+             Quote + ') ' +
+            'SUBJECT(' + Quote + %trim(subject) + Quote + ') ' +
+            'NOTE(' + Quote + %trim(body) + Quote + ')' +
+            ' ATTACH((' + Quote + %trim(path) + '/' +
+             %trim(fileNamePdf) + %trim(fileType) + Quote +
+            ' *PDF))' +
+            ' CONTENT(*HTML)';
+
+    Callp Run(Cmdstr:%Size(CmdStr));
+
+ Endsr;
+
+ //--------------------------------------------------------
+ // SendTextMessageWithLink subroutine
+ //--------------------------------------------------------
+
+ Begsr SendTextMessageWithLink;
+
+   subject   = 'Get the latest tips from IBM Systems Magazine';
+   body      = 'www.ibmsystemsmag.com';
+   recipient = '5555555555@vtext.com';
+
+   CmdStr = 'SNDSMTPEMM RCP(' +
+             Quote + %trim(recipient) +
+             Quote + ') ' +
+            'SUBJECT(' + Quote + %trim(subject) + Quote + ') ' +
+            'NOTE(' + Quote + %trim(body) + Quote + ')' +
+            ' CONTENT(*HTML)';
+
+    Callp Run(Cmdstr:%Size(CmdStr));
+
+ Endsr;
+
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
